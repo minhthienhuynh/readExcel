@@ -16,21 +16,21 @@ class CreateCitiesTable extends Migration
         Schema::create('cities', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->timestamps();
+            $table->unsignedInteger('city_id')->unique();
         });
 
         Schema::create('districts', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->integer('city_id');
-            $table->timestamps();
+            $table->unsignedInteger('city_id');
+            $table->unsignedInteger('district_id')->unique();
         });
 
         Schema::create('wards', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->integer('district_id');
-            $table->timestamps();
+            $table->unsignedInteger('district_id');
+            $table->unsignedInteger('ward_id')->unique();
         });
     }
 
@@ -41,8 +41,8 @@ class CreateCitiesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cities');
-        Schema::dropIfExists('districts');
         Schema::dropIfExists('wards');
+        Schema::dropIfExists('districts');
+        Schema::dropIfExists('cities');
     }
 }

@@ -3,45 +3,44 @@
 namespace App\Imports;
 
 use App\City;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Row;
 
-//class CitiesImport implements ToModel
-//{
-//    /**
-//    * @param array $row
-//    *
-//    * @return \Illuminate\Database\Eloquent\Model|null
-//    */
-//    public function model(array $row)
-//    {
-//        $a=$row;
-//        dd($row);
-//        return new City([
-//            'name' => ''
-//        ]);
-//    }
-//}
-
-class CitiesImport implements ToCollection
+class CitiesImport implements OnEachRow, WithChunkReading
 {
-    public function collection(Collection $rows)
+    /**
+     * @param Row $row
+     */
+    public function onRow(Row $row)
     {
-        for ($i = 0; $i < count($rows); $i++)
-        {
-            if ($i == 0) {
-                continue;
-            }
+        if ($row->getIndex() !== 1) {
+            $row = $row->toArray();
 
-            Table::create([
-                'city_name'     => $rows[$i][0],
-                'city_id'       => $rows[$i][1],
-                'district_name' => $rows[$i][2],
-                'district_id'   => $rows[$i][3],
-                'ward_name'     => $rows[$i][4],
-                'ward_id'       => $rows[$i][5],
-            ]);
+            $city = City::updateOrCreate(
+                ['city_id' => (int) $row[1]],
+                ['name' => $row[0]]
+            );
+
+            $district = $city->districts()->updateOrCreate(
+                ['district_id' => (int) $row[3]],
+                ['name' => $row[2]]
+            );
+
+            if ($row[4]) {
+                $district->wards()->updateOrCreate(
+                    ['ward_id' => (int) $row[5]],
+                    ['name' => $row[4]]
+                );
+            }
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 }

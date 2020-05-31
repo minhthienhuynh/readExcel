@@ -4,14 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class City extends Model
+class District extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'cities';
+    protected $table = 'districts';
 
     /**
      * Indicates if the model should be timestamped.
@@ -25,13 +25,13 @@ class City extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'city_id'];
+    protected $fillable = ['name', 'city_id', 'district_id'];
 
     /**
-     * Get the districts for the city.
+     * Get the wards for the city.
      */
-    public function districts()
+    public function wards()
     {
-        return $this->hasMany(District::class, 'city_id', 'city_id');
+        return $this->hasMany(Ward::class, 'district_id', 'district_id');
     }
 }
